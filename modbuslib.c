@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include "mod_crc.h"
 #include "modbuslib.h"
-void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * data_low, uint8_t * data_high)
+#include <cstring>
+static void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * data_low, uint8_t * data_high)
 {
       uint16_t crc = CRC16(modbus_data_crc,modbus_data_len_crc);
       uint8_t crc_low = crc >> 8;
@@ -10,7 +11,7 @@ void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * dat
      *data_low = crc_low;
      *data_high = crc_high;
 }
-    void transmit(uint8_t mode, uint8_t * data, uint8_t len,uint8_t modbus_id, uint8_t * modbus_data, uint8_t *data_transmit, uint8_t * data_transmit_lan)
+static  void transmit(uint8_t mode, uint8_t * data, uint8_t len,uint8_t modbus_id, uint8_t * modbus_data, uint8_t *data_transmit, uint8_t * data_transmit_lan)
     {
         int y = 0;
         switch(mode)
@@ -32,7 +33,7 @@ void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * dat
             break;
         }
     }
-    void Read_Holding_Register(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
+static void Read_Holding_Register(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
     {
         uint16_t start_addreas_ragister = modbus_data[2] << 8 | modbus_data[3];
         uint16_t Quantity_addres_ragister = modbus_data[4] << 8 | modbus_data[5];
@@ -55,7 +56,7 @@ void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * dat
         transmit(0x03, data_read, y,modbus_id,modbus_data,data_transmit,data_transmit_lan);
         }
     }
-void modbus_WriteSingleRegister(uint8_t * DataInput,uint8_t *DataInputLen,uint8_t * registers, uint8_t *data_transmit, uint8_t *data_transmit_lan)
+static void Write_Single_Register(uint8_t * DataInput,uint8_t DataInputLen,uint16_t * registers, uint8_t *data_transmit, uint8_t *data_transmit_lan)
 {
     
     uint16_t  RegisterAddress=DataInput[2]<<8|DataInput[3];
@@ -63,8 +64,11 @@ void modbus_WriteSingleRegister(uint8_t * DataInput,uint8_t *DataInputLen,uint8_
     registers[RegisterAddress]=RegisterValue;
     if(registers[RegisterAddress]==RegisterValue)
     {
-        data_transmit=DataInput;
-        data_transmit_lan=DataInputLen;
+				for(int x=0;x<DataInputLen;x++)
+				{
+						data_transmit[x]=DataInput[x];
+				}
+        *data_transmit_lan=DataInputLen;
     }
 
 }
@@ -83,7 +87,7 @@ void modbus(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, u
                     Read_Holding_Register(modbus_id,modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
                     break;
                 case 0x06:
-                    modbus_WriteSingleRegister(modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
+                    Write_Single_Register(modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
                     break;
                 default:
                     break;
