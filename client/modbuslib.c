@@ -36,7 +36,7 @@
     }
 
 
-    void Read_Holding_Register(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
+    void read_holding_register(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
     {
         uint16_t start_addreas_ragister = modbus_data[2] << 8 | modbus_data[3];
         uint16_t Quantity_addres_ragister = modbus_data[4] << 8 | modbus_data[5];
@@ -61,7 +61,7 @@
     }
 
         
-    void modbus_WriteSingleRegister(uint8_t * DataInput,uint8_t *DataInputLen,uint8_t * registers, uint8_t *data_transmit, uint8_t *data_transmit_lan)
+    void write_single_register(uint8_t * DataInput,uint8_t *DataInputLen,uint8_t * registers, uint8_t *data_transmit, uint8_t *data_transmit_lan)
     {
         
         uint16_t  RegisterAddress=DataInput[2]<<8|DataInput[3];
@@ -88,10 +88,10 @@
                     switch(modbus_data[1])
                     {
                     case 0x03:
-                        Read_Holding_Register(modbus_id,modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
+                        read_holding_register(modbus_id,modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
                         break;
                     case 0x06:
-                        modbus_WriteSingleRegister(modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
+                        write_single_register(modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
                         break;
                     default:
                         break;
