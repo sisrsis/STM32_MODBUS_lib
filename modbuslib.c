@@ -2,14 +2,16 @@
 #include <stdio.h>
 #include "mod_crc.h"
 #include "modbuslib.h"
-void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * data_low, uint8_t * data_high)
-{
-      uint16_t crc = CRC16(modbus_data_crc,modbus_data_len_crc);
-      uint8_t crc_low = crc >> 8;
-      uint8_t crc_high = crc;
-     *data_low = crc_low;
-     *data_high = crc_high;
-}
+    void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * data_low, uint8_t * data_high)
+    {
+        uint16_t crc = CRC16(modbus_data_crc,modbus_data_len_crc);
+        uint8_t crc_low = crc >> 8;
+        uint8_t crc_high = crc;
+        *data_low = crc_low;
+        *data_high = crc_high;
+    }
+
+
     void transmit(uint8_t mode, uint8_t * data, uint8_t len,uint8_t modbus_id, uint8_t * modbus_data, uint8_t *data_transmit, uint8_t * data_transmit_lan)
     {
         int y = 0;
@@ -32,6 +34,8 @@ void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * dat
             break;
         }
     }
+
+
     void Read_Holding_Register(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
     {
         uint16_t start_addreas_ragister = modbus_data[2] << 8 | modbus_data[3];
@@ -55,41 +59,45 @@ void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * dat
         transmit(0x03, data_read, y,modbus_id,modbus_data,data_transmit,data_transmit_lan);
         }
     }
-void modbus_WriteSingleRegister(uint8_t * DataInput,uint8_t *DataInputLen,uint8_t * registers, uint8_t *data_transmit, uint8_t *data_transmit_lan)
-{
-    
-    uint16_t  RegisterAddress=DataInput[2]<<8|DataInput[3];
-    uint16_t  RegisterValue=DataInput[4]<<8|DataInput[5];
-    registers[RegisterAddress]=RegisterValue;
-    if(registers[RegisterAddress]==RegisterValue)
+
+        
+    void modbus_WriteSingleRegister(uint8_t * DataInput,uint8_t *DataInputLen,uint8_t * registers, uint8_t *data_transmit, uint8_t *data_transmit_lan)
     {
-        data_transmit=DataInput;
-        data_transmit_lan=DataInputLen;
-    }
-
-}
-void modbus(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
-{
-
-
-
-    if (modbus_id == modbus_data[0])
-    {
-        if(CRC16(modbus_data,modbus_data_len)==0)
+        
+        uint16_t  RegisterAddress=DataInput[2]<<8|DataInput[3];
+        uint16_t  RegisterValue=DataInput[4]<<8|DataInput[5];
+        registers[RegisterAddress]=RegisterValue;
+        if(registers[RegisterAddress]==RegisterValue)
         {
-                switch(modbus_data[1])
-                {
-                case 0x03:
-                    Read_Holding_Register(modbus_id,modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
-                    break;
-                case 0x06:
-                    modbus_WriteSingleRegister(modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
-                    break;
-                default:
-                    break;
-                }
+            data_transmit=DataInput;
+            data_transmit_lan=DataInputLen;
         }
-            
+
     }
-}
+
+    
+    void modbus(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
+    {
+
+
+
+        if (modbus_id == modbus_data[0])
+        {
+            if(CRC16(modbus_data,modbus_data_len)==0)
+            {
+                    switch(modbus_data[1])
+                    {
+                    case 0x03:
+                        Read_Holding_Register(modbus_id,modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
+                        break;
+                    case 0x06:
+                        modbus_WriteSingleRegister(modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
+                        break;
+                    default:
+                        break;
+                    }
+            }
+                
+        }
+    }
 
