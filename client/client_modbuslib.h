@@ -1,5 +1,5 @@
-#ifndef __MODBUSLIB_H__
-#define __MODBUSLIB_H__
+#ifndef __CLIENT_MODBUSLIB_H__
+#define __CLIENT_MODBUSLIB_H__
 #include <stdint.h>
 #include <stdio.h>
 
