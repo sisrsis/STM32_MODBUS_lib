@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "mod_crc.h"
-#include "client_modbuslib.h"
+#include "modbuslib.h"
     void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * data_low, uint8_t * data_high)
     {
         uint16_t crc = CRC16(modbus_data_crc,modbus_data_len_crc);
@@ -12,7 +12,7 @@
     }
 
 
-    void transmit(uint8_t mode, uint8_t * data, uint8_t len,uint8_t modbus_id, uint8_t * modbus_data, uint8_t *data_transmit, uint8_t * data_transmit_lan)
+    void client_transmit(uint8_t mode, uint8_t * data, uint8_t len,uint8_t modbus_id, uint8_t * modbus_data, uint8_t *data_transmit, uint8_t * data_transmit_lan)
     {
         int y = 0;
         switch(mode)
@@ -36,7 +36,7 @@
     }
 
 
-    void read_holding_register(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
+    void client_read_holding_register(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
     {
         uint16_t start_addreas_ragister = modbus_data[2] << 8 | modbus_data[3];
         uint16_t Quantity_addres_ragister = modbus_data[4] << 8 | modbus_data[5];
@@ -61,7 +61,7 @@
     }
 
         
-    void write_single_register(uint8_t * DataInput,uint8_t *DataInputLen,uint8_t * registers, uint8_t *data_transmit, uint8_t *data_transmit_lan)
+    void client_write_single_register(uint8_t * DataInput,uint8_t *DataInputLen,uint8_t * registers, uint8_t *data_transmit, uint8_t *data_transmit_lan)
     {
         
         uint16_t  RegisterAddress=DataInput[2]<<8|DataInput[3];
@@ -76,7 +76,7 @@
     }
 
     
-    void modbus(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
+    void client_modbus(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
     {
 
 
