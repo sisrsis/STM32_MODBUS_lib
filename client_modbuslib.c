@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "mod_crc.h"
-#include "modbuslib.h"
+#include "client_modbuslib.h"
     void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * data_low, uint8_t * data_high)
     {
         uint16_t crc = CRC16(modbus_data_crc,modbus_data_len_crc);
