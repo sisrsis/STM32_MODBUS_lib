@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "mod_crc.h"
 #include "modbuslib.h"
+
     void CRC_C(uint8_t * modbus_data_crc, uint8_t modbus_data_len_crc, uint8_t * data_low, uint8_t * data_high)
     {
         uint16_t crc = CRC16(modbus_data_crc,modbus_data_len_crc);
@@ -26,7 +27,7 @@
             {
                 data_transmit[y] = data[x]; 
             }
-            CRC_C(data_transmit, y, &data_transmit[y + 1], &data_transmit[y ]);
+            CRC_C(data_transmit, y, &data_transmit[y + 1], &data_transmit[y]);
             *data_transmit_lan = y+2;
             break;
 
@@ -56,27 +57,34 @@
 
 
         }
-        transmit(0x03, data_read, y,modbus_id,modbus_data,data_transmit,data_transmit_lan);
+        client_transmit(0x03, data_read, y,modbus_id,modbus_data,data_transmit,data_transmit_lan);
         }
     }
 
         
-    void client_write_single_register(uint8_t * DataInput,uint8_t *DataInputLen,uint8_t * registers, uint8_t *data_transmit, uint8_t *data_transmit_lan)
+    void client_write_single_register(uint8_t * DataInput,uint8_t DataInputLen,uint16_t * registers, uint8_t *data_transmit, uint8_t *data_transmit_lan)
     {
-        
+
         uint16_t  RegisterAddress=DataInput[2]<<8|DataInput[3];
         uint16_t  RegisterValue=DataInput[4]<<8|DataInput[5];
         registers[RegisterAddress]=RegisterValue;
+        //printf("%d:%d\n",registers[RegisterAddress],RegisterValue);
+
         if(registers[RegisterAddress]==RegisterValue)
         {
-            data_transmit=DataInput;
-            data_transmit_lan=DataInputLen;
+
+
+
+         for(int x=0;x<DataInputLen;x++){
+            data_transmit[x]=DataInput[x];
+         }
+        * data_transmit_lan=DataInputLen;
         }
 
     }
 
     
-    void client_modbus(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
+    int client_modbus(uint8_t modbus_id, uint8_t * modbus_data, uint8_t modbus_data_len, uint16_t *Register, uint8_t *data_transmit, uint8_t * data_transmit_lan)
     {
 
 
@@ -88,16 +96,25 @@
                     switch(modbus_data[1])
                     {
                     case 0x03:
-                        read_holding_register(modbus_id,modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
+                        client_read_holding_register(modbus_id,modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
                         break;
                     case 0x06:
-                        write_single_register(modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
+                        client_write_single_register(modbus_data,modbus_data_len,Register,data_transmit,data_transmit_lan);
                         break;
                     default:
                         break;
                     }
             }
-                
+						else{
+						return 0;
+						
+						}
+						
+					 return 1;    
         }
+				else
+				{
+					 return 0;
+				}
     }
 
